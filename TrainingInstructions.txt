@@ -1,0 +1,61 @@
+##############################
+Training of densecap_regions:#
+##############################
+
+Use pre-trained model of densecap by downloading it as:
+sh scripts/download_pretrained_model.sh
+
+This will download a zipped version of the model (about 1.1 GB) to data/models/densecap/densecap-pretrained-vgg16.t7.zip, unpack it to data/models/densecap/densecap-pretrained-vgg16.t7 (about 1.2 GB) and then delete the zipped version.
+
+
+#############################
+Training of densecap_attrib:#
+#############################
+
+1) Download Attributes from Visual genome dataset website:
+https://visualgenome.org/api/v0/api_home.html
+
+2) Now we need to convert the attributes JSON to the JSON format that densecap will utilize. To do this, we have to use AttributesParser.java. Open the file, change the path of variables "input_attributes_file" and "output_attributes_file" but remember to keep the output file name as "region_descriptions.json".
+
+3)Now run the java file by following commands:
+javac -classpath ".:lib/jackson-core-2.9.3.jar:lib/disco-2.1.jar:lib/jackson-core-asl-1.9.13.jar:lib/jackson-mapper-asl-1.9.13.jar:lib/stanford-corenlp-3.7.0.jar"  AttributesParser.java
+java AttributesParser
+
+4)Run following command to preprocess and create HD5 file:
+python preprocess.py --region_data path_to_newly_created_json_file --image_dir path_to_image_dir --split_json info/densecap_splits.json
+
+The output "VG-regions-dicts.json" and "VG-regions.h5" files should be created in data directory.
+
+5)Now we have to train the module, evaluation code should be installed by using following file in scripts folder:
+setup_eval.sh
+
+After that, just run:
+th train.lua -max_iters 50000
+
+If you donot specify max iterations, it will run forever.
+
+#################
+Training of NMT:#
+#################
+
+1) make directory for nmt attention model
+mkdir nmt_attention_model
+
+2)Similarly, create nmt_data folder and copy all the NMT data set to nmt_data folder
+
+3) Train the model using following command after correcting all the paths according to your directories.
+
+python -m nmt.nmt 
+	--attention=scaled_luong
+     --src=en --tgt=txt
+     --vocab_prefix=/home/imrankhurram/nmt/nmt_data/vocab
+     --train_prefix=/home/imrankhurram/nmt/nmt_data/train
+     --dev_prefix=/home/imrankhurram/nmt/nmt_data/validation
+     --test_prefix=/home/imrankhurram/nmt/nmt_data/test
+     --out_dir=/home/imrankhurram/nmt/nmt_attention_model
+	--num_train_steps=20000
+     --steps_per_stats=100
+     --num_layers=2
+     --num_units=200
+     --dropout=0.2
+     --metrics=bleu
