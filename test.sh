@@ -1,0 +1,1 @@
+th densecap_attribs/run_model.lua -input_dir input -checkpoint densecap_attribs/checkpoint.t7

@@ -1,0 +1,60 @@
+To generate description, we have to pass the input from each module.
+Put the images into "input" folder.
+Note: Adjust all the paths according to your system paths.
+#######################
+Region Description    #
+#######################
+1) Move to the densecap_regions folder.
+2) Run the following command after replacing the full path of the "input" folder at the place of input_path
+
+th run_model.lua -input_dir input_path
+
+3) It will run the default pre-trained model. if you have placed pre-trained model somewhere else then put the path using flag -checkpoint.
+
+4) Rename the results.json in vis/data folder to regions_results.json and move it to the root folder of the Dense-CaptionNet. In linux, the command would be like this:
+
+cp densecap_regions/vis/data/results.json regions_results.json
+
+#######################
+Attributes Generation #
+#######################
+1) Move to the densecap_attribs folder.
+2) Run the following command after replacing the full path of the "input" folder at the place of input_path
+
+th run_model.lua -input_dir input -checkpoint densecap_attribs/checkpoint.t7
+
+3) Rename the results.json in vis/data folder and move it to the root folder of Dense-CaptionNet. In linux, the command would be like this:
+
+cp densecap_attribs/vis/data/results.json attrib_results.json
+
+########################
+Sentence Generation    #
+########################
+
+1) Run the following command to pre-process the data. It will generate plain text file for the input of sentence generation module from regions and attributes JSON files.
+
+java -classpath ".:lib/jackson-core-2.9.3.jar:lib/disco-2.1.jar:lib/jackson-core-asl-1.9.13.jar:lib/jackson-mapper-asl-1.9.13.jar:lib/stanford-corenlp-3.7.0.jar"  NMTDataInputGenerator
+
+2) Now we have to tag this plain text file to reduce the amount of vocabulary for the sentence generation module. This module is trained in such a way that it takes tagged sentences.
+
+java -classpath ".:lib/jackson-core-2.9.3.jar:lib/disco-2.1.jar:lib/jackson-core-asl-1.9.13.jar:lib/jackson-mapper-asl-1.9.13.jar:lib/stanford-corenlp-3.7.0.jar"  WordsTagger
+
+Now we have final pre-processed input for the sentence generation module in the form of "input.en" file.
+
+3) Move the input file into the module's folder and rename it. In linux, it can be done as:
+cp input.en nmt/nmt/nmt/my_infer_file.en
+
+4) Now run the model as:
+python -m nmt/nmt/nmt.nmt \
+    --out_dir=nmt/nmt/nmt/nmt_attention_model \
+    --inference_input_file=nmt/nmt/nmt/my_infer_file.en \
+    --inference_output_file=nmt/nmt/nmt/output_infer
+
+5) Move the file outside the directory as:
+cp nmt/nmt/nmt/output_infer output_infer
+
+6) The generated description is a tagged sentence, so the last step is to replace those tags with actual words. For this, use TagsReplacer class as:
+
+java -classpath ".:lib/jackson-core-2.9.3.jar:lib/disco-2.1.jar:lib/jackson-core-asl-1.9.13.jar:lib/jackson-mapper-asl-1.9.13.jar:lib/stanford-corenlp-3.7.0.jar"  TagsReplacer
+
+7) Final Resultant description will be in the file name "output_infer_tags_replaced". Open it with any text editor

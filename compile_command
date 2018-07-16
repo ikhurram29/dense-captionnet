@@ -1,0 +1,1 @@
+javac -classpath ".:lib/jackson-core-2.9.3.jar:lib/disco-2.1.jar:lib/jackson-core-asl-1.9.13.jar:lib/jackson-mapper-asl-1.9.13.jar:lib/stanford-corenlp-3.7.0.jar"  NMTDataInputGenerator.java

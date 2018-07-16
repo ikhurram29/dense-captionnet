@@ -1,6 +1,7 @@
-##############################
-Training of densecap_regions:#
-##############################
+Note: Adjust all the paths according to your system paths.
+#################################
+Training of Region Descriptions #
+#################################
 
 Use pre-trained model of densecap by downloading it as:
 sh scripts/download_pretrained_model.sh
@@ -8,9 +9,9 @@ sh scripts/download_pretrained_model.sh
 This will download a zipped version of the model (about 1.1 GB) to data/models/densecap/densecap-pretrained-vgg16.t7.zip, unpack it to data/models/densecap/densecap-pretrained-vgg16.t7 (about 1.2 GB) and then delete the zipped version.
 
 
-#############################
-Training of densecap_attrib:#
-#############################
+###################################
+Training of Attributes Generation #
+###################################
 
 1) Download Attributes from Visual genome dataset website:
 https://visualgenome.org/api/v0/api_home.html
@@ -34,9 +35,9 @@ th train.lua -max_iters 50000
 
 If you donot specify max iterations, it will run forever.
 
-#################
-Training of NMT:#
-#################
+#################################
+Training of Sentence Generation #
+#################################
 
 1) make directory for nmt attention model
 mkdir nmt_attention_model
